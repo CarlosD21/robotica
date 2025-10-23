@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://80esrcttskp6"]
+
+[ext_resource type="Texture2D" uid="uid://d3fceqwsrbjyn" path="res://assets/PNG/Retina/character_handRed.png" id="1_55tey"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_5rmjr"]
+radius = 15.652476
+
+[node name="Objetivo" type="Area2D"]
+
+[node name="CharacterHandRed" type="Sprite2D" parent="."]
+texture = ExtResource("1_55tey")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_5rmjr")

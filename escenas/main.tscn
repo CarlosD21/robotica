@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://bmfn15eq24w87"]
+
+[ext_resource type="PackedScene" uid="uid://uxr8p3y8ti6o" path="res://escenas/campo.tscn" id="1_0kxa1"]
+
+[node name="main" type="Node2D"]
+
+[node name="campo" parent="." instance=ExtResource("1_0kxa1")]

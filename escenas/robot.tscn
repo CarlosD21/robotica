@@ -1,0 +1,29 @@
+[gd_scene load_steps=6 format=3 uid="uid://cmvvtbopvhfhl"]
+
+[ext_resource type="Texture2D" uid="uid://bx3g5ehyv777p" path="res://assets/Robot/PNG/Poses HD/character_robot_idle.png" id="1_qnvs6"]
+[ext_resource type="Script" uid="uid://djsaawltj8q0s" path="res://scripts/robot.gd" id="1_uluw2"]
+[ext_resource type="Script" uid="uid://dt4novsspr84h" path="res://addons/godot_rl_agents/sensors/sensors_2d/RaycastSensor2D.gd" id="2_ggh3a"]
+[ext_resource type="Script" uid="uid://dqv0axpdbtumi" path="res://scripts/ai_controller_2d.gd" id="4_uluw2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_uluw2"]
+size = Vector2(68, 93)
+
+[node name="robot" type="CharacterBody2D"]
+script = ExtResource("1_uluw2")
+
+[node name="CharacterRobotIdle" type="Sprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_qnvs6")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 19.5)
+shape = SubResource("RectangleShape2D_uluw2")
+
+[node name="RaycastSensor2D" type="Node2D" parent="."]
+rotation = -1.5707964
+script = ExtResource("2_ggh3a")
+metadata/_custom_type_script = "uid://dt4novsspr84h"
+
+[node name="AIController2D" type="Node2D" parent="."]
+script = ExtResource("4_uluw2")
+metadata/_custom_type_script = "uid://by6rbodistisu"
