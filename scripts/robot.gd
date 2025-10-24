@@ -13,13 +13,12 @@ const JUMP_VELOCITY = -400.0
 var myBase = null
 var myBaseSide = -1.0
 var objetiveCatched = 0.0
-var enemyTouchedMy = 0.0
 var win = false
 var originalPosition= null
+func _ready() -> void:
+	originalPosition = self.position
 
 func _physics_process(delta: float) -> void:
-	if originalPosition == null:
-		originalPosition = self.position
 	# Add the gravity.
 	 #if not is_on_floor():
 	#	velocity += get_gravity() * delta
@@ -41,49 +40,49 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity.y = move_toward(velocity.y, 0, SPEED)
 	
-	velocity.x = ai_controller_2d.move.x * SPEED
-	velocity.y = ai_controller_2d.move.y * SPEED
+	velocity.x = ai_controller_2d.move.x * SPEED 
+	velocity.y = ai_controller_2d.move.y * SPEED 
 	
 	move_and_slide()
 
 func reset() -> void:
 	objetiveCatched = 0.0
-	enemyTouchedMy = 0.0
 	win = false
 	self.position = originalPosition
 	
 func _get_observations() -> Array:
 	var observations = []
 	var isCollider = 0.0
-		
+	var enemyTouchedMy = 0.0
+
 	for ray in raycast_sensor_2d.rays:
 		var distance = 0.0
 		if ray.is_colliding():
 			distance= raycast_sensor_2d._get_raycast_distance(ray)
-			if ray.get_collider() is robot || ray.get_collider() is objetivo:
-				print(name + " A DISTANCIA "+ str(distance) +" DE "+ ray.get_collider().name)
-			if ray.get_collider() is robot && distance >= 0.9:
-				print(name + " Ha sido Tocado por " + ray.get_collider().name)
-				enemyTouchedMy=1.0
-				enemyTouchedMy=1.0
-				if objetiveCatched == 1.0:
-					ai_controller_2d.reward -=0.1
-				if  objetivo.catched && objetiveCatched == 0.0:
-					ai_controller_2d.reward +=0.1
-					win = true
 					
 			if ray.get_collider() is objetivo:
-				ai_controller_2d.reward +=0.1
-				print(name + " A DISTANCIA "+ str(distance) +" DE "+ ray.get_collider().name)
+				ai_controller_2d.reward +=0.5
+				print(name + " A DISTANCIA "+ String.num(distance, 2) +" DE "+ ray.get_collider().name)
 
-			if ray.get_collider() is robot && objetivo.catched && !objetiveCatched:
-				ai_controller_2d.reward +=0.1
-				
-			if ray.get_collider() is base && ray.get_collider() == myBase && objetiveCatched:
-				ai_controller_2d.reward +=0.1
-				
-			if ray.get_collider() is base && ray.get_collider() == myBase && !objetiveCatched:
-				ai_controller_2d.reward -=0.1
+			if ray.get_collider() is robot:
+				if objetivo.catched && objetiveCatched==0.0:
+					ai_controller_2d.reward +=0.5
+				else: if distance >= 0.75:
+					enemyTouchedMy=1.0
+					if objetiveCatched == 1.0:
+						ai_controller_2d.reward -=0.8
+						print(name + " Ha sido Tocado por " + ray.get_collider().name)
+					if  objetivo.catched && objetiveCatched == 0.0:
+						ai_controller_2d.reward += 1.0
+						win = true	
+				else:
+					ai_controller_2d.reward -=0.5
+					
+			if ray.get_collider() is base && ray.get_collider() == myBase:
+				if objetiveCatched == 1.0:
+					ai_controller_2d.reward +=0.5
+				else: 
+					ai_controller_2d.reward -=0.5
 				
 		observations.append(distance)
 	observations.append(enemyTouchedMy)
