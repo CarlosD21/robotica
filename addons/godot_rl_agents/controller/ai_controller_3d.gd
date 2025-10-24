@@ -2,11 +2,11 @@ extends Node3D
 class_name AIController3D
 
 enum ControlModes {
-    INHERIT_FROM_SYNC, ## Inherit setting from sync node
-    HUMAN, ## Test the environment manually
-    TRAINING, ## Train a model
-    ONNX_INFERENCE, ## Load a pretrained model using an .onnx file
-    RECORD_EXPERT_DEMOS ## Record observations and actions for expert demonstrations
+	INHERIT_FROM_SYNC, ## Inherit setting from sync node
+	HUMAN, ## Test the environment manually
+	TRAINING, ## Train a model
+	ONNX_INFERENCE, ## Load a pretrained model using an .onnx file
+	RECORD_EXPERT_DEMOS ## Record observations and actions for expert demonstrations
 }
 @export var control_mode: ControlModes = ControlModes.INHERIT_FROM_SYNC
 ## The path to a trained .onnx model file to use for inference (overrides the path set in sync node).
@@ -42,36 +42,36 @@ var _player: Node3D
 
 
 func _ready():
-    add_to_group("AGENT")
+	add_to_group("AGENT")
 
 
 func init(player: Node3D):
-    _player = player
+	_player = player
 
 
 #region Methods that need implementing using the "extend script" option in Godot
 func get_obs() -> Dictionary:
-    assert(false, "the get_obs method is not implemented when extending from ai_controller")
-    return {"obs": []}
+	assert(false, "the get_obs method is not implemented when extending from ai_controller")
+	return {"obs": []}
 
 
 func get_reward() -> float:
-    assert(false, "the get_reward method is not implemented when extending from ai_controller")
-    return 0.0
+	assert(false, "the get_reward method is not implemented when extending from ai_controller")
+	return 0.0
 
 
 func get_action_space() -> Dictionary:
-    assert(
-        false, "the get_action_space method is not implemented when extending from ai_controller"
-    )
-    return {
-        "example_actions_continous": {"size": 2, "action_type": "continuous"},
-        "example_actions_discrete": {"size": 2, "action_type": "discrete"},
-    }
+	assert(
+		false, "the get_action_space method is not implemented when extending from ai_controller"
+	)
+	return {
+		"example_actions_continous": {"size": 2, "action_type": "continuous"},
+		"example_actions_discrete": {"size": 2, "action_type": "discrete"},
+	}
 
 
 func set_action(action) -> void:
-    assert(false, "the set_action method is not implemented when extending from ai_controller")
+	assert(false, "the set_action method is not implemented when extending from ai_controller")
 
 
 #endregion
@@ -80,57 +80,57 @@ func set_action(action) -> void:
 #region Methods that sometimes need implementing using the "extend script" option in Godot
 # Only needed if you are recording expert demos with this AIController
 func get_action() -> Array:
-    assert(
-        false,
+	assert(
+		false,
 		"the get_action method is not implemented in extended AIController but demo_recorder is used"
-    )
-    return []
+	)
+	return []
 
 
 # For providing additional info (e.g. `is_success` for SB3 training)
 func get_info() -> Dictionary:
-    return {}
+	return {}
 
 
 #endregion
 
 
 func _physics_process(delta):
-    n_steps += 1
-    if n_steps > reset_after:
-        needs_reset = true
+	n_steps += 1
+	if n_steps > reset_after:
+		needs_reset = true
 
 
 func get_obs_space():
-    # may need overriding if the obs space is complex
-    var obs = get_obs()
-    return {
-        "obs": {"size": [len(obs["obs"])], "space": "box"},
-    }
+	# may need overriding if the obs space is complex
+	var obs = get_obs()
+	return {
+		"obs": {"size": [len(obs["obs"])], "space": "box"},
+	}
 
 
 func reset():
-    n_steps = 0
-    needs_reset = false
+	n_steps = 0
+	needs_reset = false
 
 
 func reset_if_done():
-    if done:
-        reset()
+	if done:
+		reset()
 
 
 func set_heuristic(h):
-    # sets the heuristic from "human" or "model" nothing to change here
-    heuristic = h
+	# sets the heuristic from "human" or "model" nothing to change here
+	heuristic = h
 
 
 func get_done():
-    return done
+	return done
 
 
 func set_done_false():
-    done = false
+	done = false
 
 
 func zero_reward():
-    reward = 0.0
+	reward = 0.0

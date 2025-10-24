@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://doo8r8tx4rx6a" path="res://scripts/campo.gd" id="1_ql25n"]
 [ext_resource type="PackedScene" uid="uid://80esrcttskp6" path="res://escenas/objetivo.tscn" id="1_r8fre"]
 [ext_resource type="PackedScene" uid="uid://cmvvtbopvhfhl" path="res://escenas/robot.tscn" id="2_n5ddh"]
-[ext_resource type="Script" uid="uid://bgnch8w7tbswk" path="res://addons/godot_rl_agents/sync.gd" id="4_rlcpf"]
+[ext_resource type="Script" uid="uid://cslqwif72vkre" path="res://addons/godot_rl_agents/sync.gd" id="4_rlcpf"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_2nssx"]
 size = Vector2(104, 643.5)
@@ -86,7 +86,6 @@ position = Vector2(1092, 307)
 
 [node name="Sync" type="Node" parent="."]
 script = ExtResource("4_rlcpf")
-control_mode = 2
 onnx_model_path = "model.onnx"
 metadata/_custom_type_script = "uid://yk6v6w7crcmg"
 

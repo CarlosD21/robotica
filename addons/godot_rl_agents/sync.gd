@@ -63,11 +63,15 @@ var _obs_space_training: Array[Dictionary] = []
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	await get_parent().ready
-	args = _get_args()
 	get_tree().set_pause(true)
+	_initialize()
+	await get_tree().create_timer(1.0).timeout
+	get_tree().set_pause(false)
+
 
 func _initialize():
 	_get_agents()
+	args = _get_args()
 	Engine.physics_ticks_per_second = _get_speedup() * 60  # Replace with function body.
 	Engine.time_scale = _get_speedup() * 1.0
 	prints(
@@ -87,8 +91,6 @@ func _initialize():
 	_set_seed()
 	_set_action_repeat()
 	initialized = true
-	await get_tree().create_timer(1.0).timeout
-	get_tree().set_pause(false)
 
 
 func _initialize_training_agents():

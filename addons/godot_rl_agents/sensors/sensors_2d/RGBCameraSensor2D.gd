@@ -26,52 +26,52 @@ var camera_pixels = null
 
 
 func _ready():
-    DisplayServer.register_additional_output(self)
+	DisplayServer.register_additional_output(self)
 
-    camera.zoom = camera_zoom_factor
+	camera.zoom = camera_zoom_factor
 
-    var preview_size: Vector2
+	var preview_size: Vector2
 
-    sub_viewport.world_2d = get_tree().get_root().get_world_2d()
-    sub_viewport.size = render_image_resolution
-    camera_texture.scale = displayed_image_scale_factor
+	sub_viewport.world_2d = get_tree().get_root().get_world_2d()
+	sub_viewport.size = render_image_resolution
+	camera_texture.scale = displayed_image_scale_factor
 
-    if downscale_image and display_downscaled_image:
-        camera_texture.visible = false
-        processed_texture.scale = displayed_image_scale_factor
-        preview_size = Vector2(displayed_image_scale_factor) * resized_image_resolution
-    else:
-        processed_texture.visible = false
-        preview_size = displayed_image_scale_factor * render_image_resolution
+	if downscale_image and display_downscaled_image:
+		camera_texture.visible = false
+		processed_texture.scale = displayed_image_scale_factor
+		preview_size = displayed_image_scale_factor * resized_image_resolution
+	else:
+		processed_texture.visible = false
+		preview_size = displayed_image_scale_factor * render_image_resolution
 
-    preview_window.size = preview_size
+	preview_window.size = preview_size
 
 
 func get_camera_pixel_encoding():
-    var image := camera_texture.get_texture().get_image() as Image
+	var image := camera_texture.get_texture().get_image() as Image
 
-    if downscale_image:
-        image.resize(
-            resized_image_resolution.x, resized_image_resolution.y, Image.INTERPOLATE_NEAREST
-        )
-        if display_downscaled_image:
-            if not processed_texture.texture:
-                displayed_image = ImageTexture.create_from_image(image)
-                processed_texture.texture = displayed_image
-            else:
-                displayed_image.update(image)
+	if downscale_image:
+		image.resize(
+			resized_image_resolution.x, resized_image_resolution.y, Image.INTERPOLATE_NEAREST
+		)
+		if display_downscaled_image:
+			if not processed_texture.texture:
+				displayed_image = ImageTexture.create_from_image(image)
+				processed_texture.texture = displayed_image
+			else:
+				displayed_image.update(image)
 
-    return image.get_data().hex_encode()
+	return image.get_data().hex_encode()
 
 
 func get_camera_shape() -> Array:
-    var size = resized_image_resolution if downscale_image else render_image_resolution
+	var size = resized_image_resolution if downscale_image else render_image_resolution
 
-    assert(
-        size.x >= 36 and size.y >= 36,
+	assert(
+		size.x >= 36 and size.y >= 36,
 		"Camera sensor sent image resolution must be 36x36 or larger."
-    )
-    if sub_viewport.transparent_bg:
-        return [4, size.y, size.x]
-    else:
-        return [3, size.y, size.x]
+	)
+	if sub_viewport.transparent_bg:
+		return [4, size.y, size.x]
+	else:
+		return [3, size.y, size.x]
