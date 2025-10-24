@@ -15,10 +15,6 @@ run/main_scene="uid://bmfn15eq24w87"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 config/icon="res://icon.svg"
 
-[dotnet]
-
-project/assembly_name="robotica"
-
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/godot_rl_agents/plugin.cfg")
