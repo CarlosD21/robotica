@@ -4,6 +4,7 @@ class_name robot
 @onready var ai_controller_2d: Node2D = $AIController2D
 @onready var objetivo: objetivo = $"../Objetivo"
 @onready var raycast_sensor_2d = $RaycastSensor2D
+@onready var sprite: Sprite2D = $CharacterRobotIdle
 
 
 
@@ -62,27 +63,28 @@ func _get_observations() -> Array:
 					
 			if ray.get_collider() is objetivo:
 				ai_controller_2d.reward +=0.5
-				print(name + " A DISTANCIA "+ String.num(distance, 2) +" DE "+ ray.get_collider().name)
+				#print(name + " A DISTANCIA "+ String.num(distance, 2) +" DE "+ ray.get_collider().name)
 
 			else: if ray.get_collider() is robot:
-				if objetivo.catched && objetiveCatched==0.0:
-					ai_controller_2d.reward +=0.5
-				else: if distance >= 0.75:
-					enemyTouchedMy=1.0
+				if distance >= 0.75:
 					if objetiveCatched == 1.0:
-						ai_controller_2d.reward -=0.8
-						print(name + " Ha sido Tocado por " + ray.get_collider().name)
-					if  objetivo.catched && objetiveCatched == 0.0:
+						enemyTouchedMy=1.0
+						ai_controller_2d.reward -= 1.0
+					if objetiveCatched == 0.0 && objetivo.catched:
 						ai_controller_2d.reward += 1.0
-						win = true	
+						win = true
+						print(name + " GANA ")	
+						print("HA ALCANZADO A " + ray.get_collider().name)
+				else: if objetivo.catched && objetiveCatched == 0.0:
+					ai_controller_2d.reward += 0.5
 				else:
-					ai_controller_2d.reward -=0.5
+					ai_controller_2d.reward -= 0.25
 					
 			else: if ray.get_collider() is base && ray.get_collider() == myBase:
 				if objetiveCatched == 1.0:
 					ai_controller_2d.reward +=0.5
 				else: 
-					ai_controller_2d.reward -=0.5
+					ai_controller_2d.reward -=0.25
 			
 						
 		observations.append(distance)
