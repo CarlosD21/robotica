@@ -83,8 +83,7 @@ func _get_observations() -> Array:
 					ai_controller_2d.reward +=0.5
 				else: 
 					ai_controller_2d.reward -=0.5
-			else: 
-					ai_controller_2d.reward -=0.3
+			
 						
 		observations.append(distance)
 	observations.append(enemyTouchedMy)
