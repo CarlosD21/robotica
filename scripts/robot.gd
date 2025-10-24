@@ -63,9 +63,10 @@ func _get_observations() -> Array:
 					
 			if ray.get_collider() is objetivo:
 				ai_controller_2d.reward +=0.5
-				#print(name + " A DISTANCIA "+ String.num(distance, 2) +" DE "+ ray.get_collider().name)
+				print(name + " A DISTANCIA "+ String.num(distance, 2) +" DE "+ ray.get_collider().name)
 
 			else: if ray.get_collider() is robot:
+				print(name + " A DISTANCIA "+ String.num(distance, 2) +" DE "+ ray.get_collider().name)
 				if distance >= 0.75:
 					if objetiveCatched == 1.0:
 						enemyTouchedMy=1.0
