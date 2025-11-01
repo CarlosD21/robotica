@@ -53,7 +53,6 @@ func reset() -> void:
 	
 func _get_observations() -> Array:
 	var observations = []
-	var isCollider = 0.0
 	var enemyTouchedMy = 0.0
 
 	for ray in raycast_sensor_2d.rays:
@@ -62,7 +61,7 @@ func _get_observations() -> Array:
 			distance= raycast_sensor_2d._get_raycast_distance(ray)
 					
 			if ray.get_collider() is objetivo:
-				ai_controller_2d.reward +=0.5
+				ai_controller_2d.reward +=1.0
 				print(name + " A DISTANCIA "+ String.num(distance, 2) +" DE "+ ray.get_collider().name)
 
 			else: if ray.get_collider() is robot:
@@ -77,16 +76,16 @@ func _get_observations() -> Array:
 						print(name + " GANA ")	
 						print("HA ALCANZADO A " + ray.get_collider().name)
 				else: if objetivo.catched && objetiveCatched == 0.0:
-					ai_controller_2d.reward += 0.5
+					ai_controller_2d.reward += 1.0
 				else:
-					ai_controller_2d.reward -= 0.25
+					ai_controller_2d.reward -= 1.0
 					
 			else: if ray.get_collider() is base && ray.get_collider() == myBase:
 				if objetiveCatched == 1.0:
 					ai_controller_2d.reward +=0.5
 				else: 
-					ai_controller_2d.reward -=0.25
-			
+					ai_controller_2d.reward -=0.5
+			else: ai_controller_2d.reward -=0.5
 						
 		observations.append(distance)
 	observations.append(enemyTouchedMy)
