@@ -101,7 +101,7 @@ func _spawn_nodes():
 			ray.collide_with_areas = collide_with_areas
 			ray.collision_mask = collision_mask
 			add_child(ray)
-			ray.set_owner(get_tree().edited_scene_root)
+			ray.set_owner(get_tree().get_current_scene())
 			rays.append(ray)
 			ray.force_raycast_update()
 			
