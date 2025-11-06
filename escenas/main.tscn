@@ -5,3 +5,17 @@
 [node name="main" type="Node2D"]
 
 [node name="campo" parent="." instance=ExtResource("1_0kxa1")]
+
+[node name="campo2" parent="." instance=ExtResource("1_0kxa1")]
+
+[node name="campo3" parent="." instance=ExtResource("1_0kxa1")]
+
+[node name="campo4" parent="." instance=ExtResource("1_0kxa1")]
+
+[node name="campo5" parent="." instance=ExtResource("1_0kxa1")]
+
+[node name="campo6" parent="." instance=ExtResource("1_0kxa1")]
+
+[node name="campo7" parent="." instance=ExtResource("1_0kxa1")]
+
+[node name="campo8" parent="." instance=ExtResource("1_0kxa1")]

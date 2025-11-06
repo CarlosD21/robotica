@@ -55,7 +55,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--save_checkpoint_frequency",
-    default=None,
+    default=100_000,
     type=int,
     help=(
         "If set, will save checkpoints every 'frequency' environment steps. "
@@ -156,7 +156,9 @@ if args.inference and args.resume_model_path is None:
 
 if args.env_path is None and args.viz:
     print("Info: Using --viz without --env_path set has no effect, in-editor training will always render.")
-
+elif args.env_path is not None and not os.path.isabs(args.env_path):
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    args.env_path = os.path.join(script_dir, args.env_path)
 env = StableBaselinesGodotEnv(
     env_path=args.env_path, show_window=args.viz, seed=args.seed, n_parallel=args.n_parallel, speedup=args.speedup
 )

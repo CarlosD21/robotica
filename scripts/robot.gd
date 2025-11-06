@@ -112,7 +112,7 @@ func _get_observations() -> Array:
 
 			elif ray.get_collider() is base and ray.get_collider() == myBase:
 				if objetiveCatched == 1.0:
-					ai_controller_2d.reward += 0.5
+					ai_controller_2d.reward += 1.0
 				else:
 					ai_controller_2d.reward -= 0.25
 			else:

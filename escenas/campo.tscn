@@ -86,6 +86,8 @@ position = Vector2(1092, 307)
 
 [node name="Sync" type="Node" parent="."]
 script = ExtResource("4_rlcpf")
+control_mode = 2
+onnx_model_path = "res://trainModel.onnx"
 metadata/_custom_type_script = "uid://yk6v6w7crcmg"
 
 [connection signal="body_entered" from="base1" to="base1" method="_on_body_entered"]
