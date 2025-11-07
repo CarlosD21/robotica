@@ -1,10 +1,9 @@
-[gd_scene load_steps=9 format=3 uid="uid://uxr8p3y8ti6o"]
+[gd_scene load_steps=8 format=3 uid="uid://uxr8p3y8ti6o"]
 
 [ext_resource type="Script" uid="uid://besf60xs5half" path="res://scripts/base.gd" id="1_n2qr4"]
 [ext_resource type="Script" uid="uid://doo8r8tx4rx6a" path="res://scripts/campo.gd" id="1_ql25n"]
 [ext_resource type="PackedScene" uid="uid://80esrcttskp6" path="res://escenas/objetivo.tscn" id="1_r8fre"]
 [ext_resource type="PackedScene" uid="uid://cmvvtbopvhfhl" path="res://escenas/robot.tscn" id="2_n5ddh"]
-[ext_resource type="Script" uid="uid://yk6v6w7crcmg" path="res://addons/godot_rl_agents/sync.gd" id="4_rlcpf"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_2nssx"]
 size = Vector2(104, 643.5)
@@ -83,12 +82,6 @@ position = Vector2(51, 297)
 position = Vector2(1092, 307)
 
 [node name="Timer" type="Timer" parent="."]
-
-[node name="Sync" type="Node" parent="."]
-script = ExtResource("4_rlcpf")
-control_mode = 2
-onnx_model_path = "res://trainModel.onnx"
-metadata/_custom_type_script = "uid://yk6v6w7crcmg"
 
 [connection signal="body_entered" from="base1" to="base1" method="_on_body_entered"]
 [connection signal="body_exited" from="base1" to="base1" method="_on_body_exited"]

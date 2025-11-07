@@ -1,0 +1,1 @@
+ python3 stable_baselines3_example.py  --env_path="/mnt/d/robotica/robotica/ejecutable.x86_64" --timesteps=3000000 --save_model_path=/mnt/d/robotica/robotica/logs/sb3/model/run_001.zip --n_parallel=15
