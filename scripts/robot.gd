@@ -78,7 +78,7 @@ func _get_observations() -> Array:
 				if distance <= 0.75:
 					# contacto directo
 					if objetiveCatched == 1.0:
-						reward_local -= 1.0  # castigo por ser alcanzado con objetivo
+						reward_local -= 8.0  # castigo por ser alcanzado con objetivo
 						enemyTouchedMy = 1.0
 					elif objetivo.catched == 1.0 and objetiveCatched == 0.0:
 						reward_local += 2.0  # premio por interceptar rival con objetivo
