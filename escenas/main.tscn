@@ -7,21 +7,6 @@
 
 [node name="campo" parent="." instance=ExtResource("1_0kxa1")]
 
-[node name="campo2" parent="." instance=ExtResource("1_0kxa1")]
-position = Vector2(1617, 28)
-
-[node name="campo3" parent="." instance=ExtResource("1_0kxa1")]
-position = Vector2(3418, 55)
-
-[node name="campo4" parent="." instance=ExtResource("1_0kxa1")]
-position = Vector2(18, 1140)
-
-[node name="campo5" parent="." instance=ExtResource("1_0kxa1")]
-position = Vector2(1577, 1149)
-
-[node name="campo6" parent="." instance=ExtResource("1_0kxa1")]
-position = Vector2(3437, 1166)
-
 [node name="Sync" type="Node" parent="."]
 script = ExtResource("2_0kxa1")
 speed_up = 6.0

@@ -1,12 +1,15 @@
-[gd_scene load_steps=6 format=3 uid="uid://cmvvtbopvhfhl"]
+[gd_scene load_steps=8 format=3 uid="uid://cmvvtbopvhfhl"]
 
 [ext_resource type="Texture2D" uid="uid://bx3g5ehyv777p" path="res://assets/Robot/PNG/Poses HD/character_robot_idle.png" id="1_qnvs6"]
 [ext_resource type="Script" uid="uid://djsaawltj8q0s" path="res://scripts/robot.gd" id="1_uluw2"]
 [ext_resource type="Script" uid="uid://dt4novsspr84h" path="res://addons/godot_rl_agents/sensors/sensors_2d/RaycastSensor2D.gd" id="2_ggh3a"]
 [ext_resource type="Script" uid="uid://dqv0axpdbtumi" path="res://scripts/ai_controller_2d.gd" id="4_uluw2"]
+[ext_resource type="Texture2D" uid="uid://d3fceqwsrbjyn" path="res://assets/PNG/Retina/character_handRed.png" id="5_73r1n"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_uluw2"]
 radius = 49.063736
+
+[sub_resource type="LabelSettings" id="LabelSettings_73r1n"]
 
 [node name="robot" type="CharacterBody2D"]
 script = ExtResource("1_uluw2")
@@ -30,3 +33,16 @@ metadata/_custom_type_script = "uid://dt4novsspr84h"
 position = Vector2(0, 20)
 script = ExtResource("4_uluw2")
 metadata/_custom_type_script = "uid://by6rbodistisu"
+
+[node name="RewardCount" type="Label" parent="."]
+offset_left = -15.0
+offset_top = -56.0
+offset_right = 25.0
+offset_bottom = -33.0
+label_settings = SubResource("LabelSettings_73r1n")
+
+[node name="ball" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(-25, 51)
+scale = Vector2(0.8046875, 0.6957363)
+texture = ExtResource("5_73r1n")

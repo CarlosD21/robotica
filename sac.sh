@@ -1,2 +1,10 @@
+#!/bin/bash
 
-python3 sac_model.py  --env_path="/mnt/d/robotica/robotica/ejecutable.x86_64" --timesteps=3000000 --save_model_path=/mnt/d/robotica/robotica/logs/sac/model/run_004.zip --resume_model_path=/mnt/d/robotica/robotica/logs/sac/model/run_003.zip --n_parallel=15
+# === CONFIGURACIÓN ===
+ENV_PATH="/mnt/d/robotica/robotica/ejecutable.x86_64"
+LOG_DIR="/mnt/d/robotica/robotica/logs/sac/model"
+TIMESTEPS=2_000_000
+N_PARALLEL=15
+SCRIPT="sac_model.py"
+
+source runTrain.sh

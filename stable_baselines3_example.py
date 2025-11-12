@@ -26,14 +26,14 @@ parser.add_argument(
 )
 parser.add_argument(
     "--experiment_dir",
-    default="logs/sb3",
+    default="logs/ppo",
     type=str,
     help="The name of the experiment directory, in which the tensorboard logs and checkpoints (if enabled) are "
     "getting stored.",
 )
 parser.add_argument(
     "--experiment_name",
-    default="experiment",
+    default="experiment/experiment",
     type=str,
     help="The name of the experiment, which will be displayed in tensorboard and "
     "for checkpoint directory and name (if enabled).",
@@ -55,7 +55,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--save_checkpoint_frequency",
-    default=100_000,
+    default=None,
     type=int,
     help=(
         "If set, will save checkpoints every 'frequency' environment steps. "
