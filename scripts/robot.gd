@@ -71,7 +71,7 @@ func end_episode_timeout():
 #| el objetivo               |  +0.03    | Volver rápidamente con trayectorias óptimas |
 #+---------------------------+-----------+---------------------------------------------+
 #| Estancamiento             |  -0.4     | Nunca quedarse quieto                        |
-#| Ver enemigo sin objetivo  | -0.005    | No perseguir sin sentido                     |
+#| Ver enemigo sin objetivo  | -0.1      | No perseguir sin sentido                     |
 #| Entrar a base sin objetivo|  -0.3     | No regresar sin nada (“no aburrirse”)        |
 #| Timeout                   |  -2.0     | Actuar rápido, no dar vueltas                |
 #+---------------------------+-----------+---------------------------------------------+
@@ -82,8 +82,9 @@ func _get_observations() -> Array:
 	var reward_local = 0.0
 
 	# Distancia al objetivo normalizada (info útil)
-	var dist_obj = position.distance_to(objetivo.position)
-	observations.append(clamp(dist_obj / 1500.0, 0.0, 1.0))
+	if(objetivo.catch()==0.0):
+		var dist_obj = position.distance_to(objetivo.position)
+		observations.append(clamp(dist_obj / 1500.0, 0.0, 1.0))
 
 	# RAYCASTS
 	for ray in raycast_sensor_2d.rays:
@@ -106,7 +107,7 @@ func _get_observations() -> Array:
 						win = true
 					enemy_contact = 1.0
 				else:
-					reward_local -= 0.005
+					reward_local -= 0.1
 
 			# Base detectada
 			if collider is base:
