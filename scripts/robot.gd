@@ -85,7 +85,8 @@ func _get_observations() -> Array:
 	if(objetivo.catch()==0.0):
 		var dist_obj = position.distance_to(objetivo.position)
 		observations.append(clamp(dist_obj / 1500.0, 0.0, 1.0))
-
+	else: 
+		observations.append(0.0)
 	# RAYCASTS
 	for ray in raycast_sensor_2d.rays:
 		var distance = 1.0
