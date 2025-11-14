@@ -2,20 +2,27 @@ extends Node2D
 class_name campo
 
 @onready var objetivo: objetivo = $Objetivo
-@onready var robot: robot = $robot
-@onready var robot_2: robot = $robot2
+@onready var robot := $robot
+@onready var robot2 := $robot2
 
-func _ready() -> void:
-	pass
+var episode_time := 0.0
+const EPISODE_TIME_LIMIT := 12.0
 
+func _process(delta):
+	episode_time += delta
 
-func _process(delta: float) -> void:
-	# Usamos deferred para evitar conflictos durante señales de colisión
-	if robot.win or robot_2.win:
+	# Timeout
+	if episode_time >= EPISODE_TIME_LIMIT:
+		robot.end_episode_timeout()
+		robot2.end_episode_timeout()
 		call_deferred("_reset_all")
 
+	# Si alguno gana
+	if robot.win or robot2.win:
+		call_deferred("_reset_all")
 
-func _reset_all() -> void:
+func _reset_all():
+	episode_time = 0.0
 	objetivo.reset()
 	robot.reset()
-	robot_2.reset()
+	robot2.reset()
