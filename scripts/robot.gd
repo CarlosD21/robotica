@@ -10,10 +10,7 @@ class_name robot
 
 # Movimiento
 const SPEED = 400.0
-const ACCELERATION = 1200.0
-const DECELERATION = 1600.0
-const BASE_SMOOTH = 0.3
-const TURN_SMOOTH = 0.6
+const BASE_SMOOTH = 0.15
 
 # Estado
 var myBase = null
@@ -22,6 +19,7 @@ var objetiveCatched = 0.0
 var win = false
 var originalPosition
 var total_reward := 0.0
+signal sig_win
 
 # Anti estancamiento
 const STUCK_RADIUS = 40.0
@@ -29,144 +27,217 @@ const STUCK_TIME_LIMIT = 2.0
 var last_stuck_check_pos := Vector2.ZERO
 var time_in_same_area := 0.0
 
-# Movimiento interno
-var smoothed_move := Vector2.ZERO
+# Timeout llevando objetivo
+var has_objetive_time := 0.0
+const DELIVERY_TIME_LIMIT := 30.0
+
+# Movimiento
 var desired_velocity := Vector2.ZERO
+
+# Asíncrono: acción anterior
+var last_action := Vector2.ZERO
+
+# ---- MEJORA: flags para recompensas discretas ----
+var saw_objective_last := false
+var saw_enemy_last := false
+var saw_base_last := false
+var exit_base:= false
+var saw_base_first_time := false
+var saw_objective_first_time := false
 
 func _ready():
 	originalPosition = position
 	last_stuck_check_pos = position
 
+
 func _physics_process(delta):
-	moveAIController(delta)
+	if win:
+		win_game()
+
+	moveAIController()
 	check_stuck(delta)
+	base_timeout(delta)
 	update_label()
+
 	move_and_slide()
 
+
+# ---------------------------------------------------
+# RESET
+# ---------------------------------------------------
 func reset():
 	objetiveCatched = 0.0
+	ai_controller_2d.done = true
 	win = false
 	total_reward = 0.0
+
 	set_deferred("position", originalPosition)
 	set_deferred("velocity", Vector2.ZERO)
+
 	ball.set_deferred("visible", false)
+
 	time_in_same_area = 0.0
 	last_stuck_check_pos = originalPosition
+	has_objetive_time = 0.0
 
-func end_episode_timeout():
-	add_reward(-2.0) 
-	ai_controller_2d.done = true
-
-# -------------------------------------------
+	saw_objective_last = false
+	saw_enemy_last = false
+	saw_base_last = false
+	exit_base = false
+# ---------------------------------------------------
 # OBSERVACIONES Y RECOMPENSAS
-# -------------------------------------------
-#+---------------------------+-----------+---------------------------------------------+
-#| Evento / Situación       | Recompensa| Qué enseña                                   |
-#+---------------------------+-----------+---------------------------------------------+
-#| Capturar objetivo         |   +1.0    | Buscar el objetivo, avanzar hacia él        |
-#| Llevar objetivo a base    |   +3.0    | Convertir → misión terminada                |
-#| Ver el objetivo           |  +0.01    | Orientar la cámara hacia el objetivo        |
-#| Ver enemigo con objetivo  |   +2.0    | Interceptar, defender, anticipar            |
-#| Acercarse a tu base con   |           |                                             |
-#| el objetivo               |  +0.03    | Volver rápidamente con trayectorias óptimas |
-#+---------------------------+-----------+---------------------------------------------+
-#| Estancamiento             |  -0.4     | Nunca quedarse quieto                        |
-#| Ver enemigo sin objetivo  | -0.1      | No perseguir sin sentido                     |
-#| Entrar a base sin objetivo|  -0.3     | No regresar sin nada (“no aburrirse”)        |
-#| Timeout                   |  -2.0     | Actuar rápido, no dar vueltas                |
-#+---------------------------+-----------+---------------------------------------------+
-
+# ---------------------------------------------------
 func _get_observations() -> Array:
 	var observations = []
-	var enemy_contact = 0.0
-	var reward_local = 0.0
+	var reward_local := 0.0
 
-	# Distancia al objetivo normalizada (info útil)
-	if(objetivo.catch()==0.0):
-		var dist_obj = position.distance_to(objetivo.position)
-		observations.append(clamp(dist_obj / 1500.0, 0.0, 1.0))
-	else: 
-		observations.append(0.0)
-	# RAYCASTS
+	var saw_objective := false
+	var saw_enemy := false
+	var saw_own_base := false
+	var enemy_contact := 0.0
+
+	# Distancia al objetivo
+	var dist_obj := position.distance_to(objetivo.position)
+	observations.append(clamp(dist_obj / 1500.0, 0.0, 1.0))
+
+	# -----------------------------
+	#  RAYCASTS
+	# -----------------------------
 	for ray in raycast_sensor_2d.rays:
-		var distance = 1.0
+		var distance := 1.0
+
 		if ray.is_colliding():
 			var collider = ray.get_collider()
 			distance = raycast_sensor_2d._get_raycast_distance(ray)
 
 			# Objetivo detectado
 			if collider is objetivo:
-				reward_local += 0.01  
+				saw_objective = true
 
-			# Rival detectado
+			# Enemigo detectado
 			if collider is robot:
-				if distance < 0.75:
-					if objetiveCatched == 1.0:
-						reward_local -= 1.5
-					elif objetivo.catched == 1.0 and objetiveCatched == 0.0:
-						reward_local += 2.0
-						win = true
+				saw_enemy = true
+				if distance > 0.75:
 					enemy_contact = 1.0
-				else:
-					reward_local -= 0.1
 
-			# Base detectada
-			if collider is base:
-				if collider == myBase and objetiveCatched == 1.0:
-					reward_local += 0.03
+			# Base propia detectada
+			if collider is base and collider == myBase:
+				saw_own_base = true
 
 		observations.append(distance)
 
-	# Estado propio y del rival
 	observations.append(enemy_contact)
 	observations.append(myBaseSide)
 	observations.append(objetiveCatched)
 	observations.append(objetivo.catched)
 
+
+	# ---------------------------------------------------
+	# RECOMPENSAS 
+	# ---------------------------------------------------
+
+	# ---- Ver objetivo por PRIMERA vez ----
+	if saw_objective and not saw_objective_last:
+		reward_local += 0.2
+		saw_objective_last = saw_objective
+
+	# ---- Ver enemigo ----
+	if saw_enemy and not saw_enemy_last:
+
+		# Enemigo sin objetivo: ignorar
+		if objetivo.catched == 0.0:
+			reward_local += 0.0
+
+		# El enemigo tiene el objetivo: perseguir
+		elif objetivo.catched == 1.0 and objetiveCatched == 0.0:
+			reward_local += 0.3
+
+		# Yo tengo el objetivo: evitar
+		elif objetiveCatched == 1.0:
+			reward_local -= 0.1
+		
+	# ---- Ver tu base mientras llevas objetivo ----
+	if saw_own_base and not saw_base_last and objetiveCatched == 1.0:
+		reward_local += 0.1
+		saw_base_last = saw_own_base
+		
+	# ---- Contactos ----
+	if enemy_contact == 1.0:
+		if objetiveCatched == 1.0:
+			reward_local -= 2.0 
+		elif objetivo.catched == 1.0:
+			win = true           
+
+	# Guardar flags
+	saw_enemy_last = saw_enemy
+
 	add_reward(reward_local)
 	return observations
 
-# -------------------------------------------
-# RECOMPENSAS AUXILIARES
-# -------------------------------------------
+
+# ---------------------------------------------------
+# RECOMPENSAS
+# ---------------------------------------------------
 func check_stuck(delta):
-	var moved = position.distance_to(last_stuck_check_pos)
+	var moved := position.distance_to(last_stuck_check_pos)
+
 	if moved < STUCK_RADIUS:
 		time_in_same_area += delta
 		if time_in_same_area > STUCK_TIME_LIMIT:
-			add_reward(-0.4)   
+			add_reward(-0.2)
 			time_in_same_area = 0.0
 	else:
-		last_stuck_check_pos = position
 		time_in_same_area = 0.0
+		last_stuck_check_pos = position
+
 
 func add_reward(value):
 	ai_controller_2d.reward += value
 	total_reward += value
 
+
+func win_game():
+	add_reward(3.0)
+	emit_signal("sig_win")
+
+
+func have_objetive():
+	add_reward(1.5)
+	objetiveCatched = 1.0
+	ball.set_deferred("visible", true)
+
+
 func update_label():
 	reward_count.text = str("%.2f" % total_reward)
 	reward_count.modulate = Color(1, 1, 1) if total_reward >= 0 else Color(1, 0.3, 0.3)
 
-# -------------------------------------------
+
+func base_timeout(delta):
+	if objetiveCatched == 1.0:
+		has_objetive_time += delta
+
+		if has_objetive_time > DELIVERY_TIME_LIMIT:
+			add_reward(-0.001)
+
+
+func end_episode_timeout():
+	add_reward(-1.5)
+
+
+# ---------------------------------------------------
 # MOVIMIENTO
-# -------------------------------------------
-func moveAIController(delta):
-	var move_input = ai_controller_2d.move
+# ---------------------------------------------------
+func moveAIController():
+	var move_input := last_action
+
+	if ai_controller_2d.new_action:
+		move_input = ai_controller_2d.move
+		last_action = move_input
+		ai_controller_2d.new_action = false
+
 	if move_input.length() < 0.05:
 		move_input = Vector2.ZERO
 
-	var turn_angle = 0.0
-	if smoothed_move.length() > 0.01 and move_input.length() > 0.01:
-		turn_angle = rad_to_deg(smoothed_move.angle_to(move_input))
+	desired_velocity = move_input * SPEED
 
-	var smooth_factor = lerp(BASE_SMOOTH, TURN_SMOOTH, clamp(abs(turn_angle) / 180.0, 0.0, 1.0))
-	smoothed_move = smoothed_move.lerp(move_input, smooth_factor)
-	desired_velocity = smoothed_move * SPEED
-
-	if desired_velocity.length() > velocity.length():
-		velocity = velocity.move_toward(desired_velocity, ACCELERATION * delta)
-	else:
-		velocity = velocity.move_toward(desired_velocity, DECELERATION * delta)
-
-	velocity = smoothed_move * SPEED
+	velocity = velocity.move_toward(desired_velocity, SPEED * 0.25)

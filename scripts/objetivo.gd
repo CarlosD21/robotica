@@ -30,7 +30,5 @@ func catch():
 
 func _on_body_entered(body):
 	if body is robot and catched == 0.0 and body.objetiveCatched == 0.0:
-		body.add_reward(1.0)   
-		body.objetiveCatched = 1.0
-		body.ball.set_deferred("visible", true)
+		body.have_objetive()
 		catch()

@@ -25,8 +25,8 @@ CMD=(python3 "$SCRIPT" \
      --timesteps "$TIMESTEPS" \
      --save_model_path "$SAVE_PATH" \
      --n_parallel "$N_PARALLEL"\
-     #--viz
-    # --inference
+    #--viz
+    #--inference
      )
 
 # Agregar resume_model_path si existe
