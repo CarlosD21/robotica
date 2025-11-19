@@ -21,10 +21,10 @@ echo "-> Guardando nuevo modelo como: $NEXT_MODEL"
 
 # === CONSTRUIR COMANDO ===
 CMD=(python3 "$SCRIPT" \
-     --env_path "$ENV_PATH" \
+    # --env_path "$ENV_PATH" \
      --timesteps "$TIMESTEPS" \
      --save_model_path "$SAVE_PATH" \
-     --n_parallel "$N_PARALLEL"\
+    # --n_parallel "$N_PARALLEL"\
     #--viz
     #--inference
      )
