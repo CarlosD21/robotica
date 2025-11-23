@@ -25,12 +25,11 @@ func _reset_all():
 		if child is robot:
 			child.reset()
 
-
 func _on_timer_timeout() -> void:
 	for child in get_children():
 			if child is robot:
 				child.end_episode_timeout()
-				call_deferred("_reset_all")
+	call_deferred("_reset_all")
 
 
 func _on_robot_sig_win() -> void:

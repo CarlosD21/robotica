@@ -37,13 +37,14 @@ var desired_velocity := Vector2.ZERO
 # Asíncrono: acción anterior
 var last_action := Vector2.ZERO
 
-# ---- MEJORA: flags para recompensas discretas ----
-var saw_objective_last := false
+# ---- flags para recompensas discretas ----
+var saw_objective_reward := 0.0
+var saw_base_reward := 0.0
+var saw_enemy_reward := 0.0
+
 var saw_enemy_last := false
-var saw_base_last := false
 var exit_base:= false
-var saw_base_first_time := false
-var saw_objective_first_time := false
+
 
 func _ready():
 	originalPosition = position
@@ -80,9 +81,9 @@ func reset():
 	last_stuck_check_pos = originalPosition
 	has_objetive_time = 0.0
 
-	saw_objective_last = false
+	saw_objective_reward = 0.0
 	saw_enemy_last = false
-	saw_base_last = false
+	saw_base_reward = false
 	exit_base = false
 # ---------------------------------------------------
 # OBSERVACIONES Y RECOMPENSAS
@@ -104,7 +105,7 @@ func _get_observations() -> Array:
 	#  RAYCASTS
 	# -----------------------------
 	for ray in raycast_sensor_2d.rays:
-		var distance := 1.0
+		var distance := 0.0
 
 		if ray.is_colliding():
 			var collider = ray.get_collider()
@@ -115,15 +116,17 @@ func _get_observations() -> Array:
 				saw_objective = true
 
 			# Enemigo detectado
-			if collider is robot:
+			elif collider is robot:
 				saw_enemy = true
 				if distance > 0.75:
 					enemy_contact = 1.0
 
 			# Base propia detectada
-			if collider is base and collider == myBase:
-				saw_own_base = true
-
+			elif collider is base:
+				if collider == myBase:
+					saw_own_base = true
+			
+			else: distance = 0.0
 		observations.append(distance)
 
 	observations.append(enemy_contact)
@@ -137,9 +140,9 @@ func _get_observations() -> Array:
 	# ---------------------------------------------------
 
 	# ---- Ver objetivo por PRIMERA vez ----
-	if saw_objective and not saw_objective_last:
-		reward_local += 0.2
-		saw_objective_last = saw_objective
+	if saw_objective and  saw_objective_reward < 0.3:
+		reward_local += 0.001
+		saw_objective_reward += 0.001
 
 	# ---- Ver enemigo ----
 	if saw_enemy and not saw_enemy_last:
@@ -155,16 +158,18 @@ func _get_observations() -> Array:
 		# Yo tengo el objetivo: evitar
 		elif objetiveCatched == 1.0:
 			reward_local -= 0.1
-		
+	if saw_enemy_last and not saw_enemy and objetiveCatched == 1.0:
+			reward_local += 0.1	
+			
 	# ---- Ver tu base mientras llevas objetivo ----
-	if saw_own_base and not saw_base_last and objetiveCatched == 1.0:
-		reward_local += 0.1
-		saw_base_last = saw_own_base
+	if saw_own_base and saw_base_reward < 0.3 and objetiveCatched == 1.0:
+		reward_local += 0.001
+		saw_base_reward+=0.001
 		
 	# ---- Contactos ----
 	if enemy_contact == 1.0:
 		if objetiveCatched == 1.0:
-			reward_local -= 2.0 
+			reward_local -= 1.0 
 		elif objetivo.catched == 1.0:
 			win = true           
 
@@ -216,12 +221,12 @@ func base_timeout(delta):
 	if objetiveCatched == 1.0:
 		has_objetive_time += delta
 
-		if has_objetive_time > DELIVERY_TIME_LIMIT:
+		if has_objetive_time > DELIVERY_TIME_LIMIT and total_reward > 1.5:
 			add_reward(-0.001)
 
 
 func end_episode_timeout():
-	add_reward(-1.5)
+	add_reward(-1.0)
 
 
 # ---------------------------------------------------

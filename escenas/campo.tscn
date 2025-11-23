@@ -79,7 +79,7 @@ position = Vector2(570, 321)
 position = Vector2(1093, 293)
 
 [node name="Timer" type="Timer" parent="."]
-wait_time = 90.0
+wait_time = 60.0
 autostart = true
 
 [connection signal="body_entered" from="base1" to="base1" method="_on_body_entered"]
