@@ -10,6 +10,6 @@
 [node name="Sync" type="Node" parent="."]
 script = ExtResource("2_0kxa1")
 action_repeat = 4
-speed_up = 6.7
+speed_up = 10.0
 onnx_model_path = "res://trainModel.onnx"
 metadata/_custom_type_script = "uid://yk6v6w7crcmg"

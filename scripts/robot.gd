@@ -107,18 +107,18 @@ func _update_observations():
 	for ray in raycast_sensor_2d.rays:
 		var distance := 0.0
 		var collide_with := 0.0
-		 
-		if ray.is_colliding():
-			var collider = ray.get_collider()
-			distance = raycast_sensor_2d._get_raycast_distance(ray)
-			# Rival detectado
-			if collider is robot:
-				collide_with = 1.0
-				if distance > near_distance_rival:
-					near_distance_rival = distance
-				if distance > 0.80 and objective.catched:
-					rival_contact = true
-											
+		ray.enabled = true
+		ray.force_raycast_update()
+		var collider = ray.get_collider()
+		distance = raycast_sensor_2d._get_raycast_distance(ray)
+		# Rival detectado
+		if collider is robot:
+			collide_with = 1.0
+			if distance > near_distance_rival:
+				near_distance_rival = distance
+			if distance > 0.80 and objective.catched:
+				rival_contact = true
+		ray.enabled = false					
 		observations.append(distance)
 		observations.append(collide_with)
 	distance_rival = near_distance_rival
@@ -253,7 +253,7 @@ func moveAIController(delta:float):
 		move_input = move_input.normalized()
 	last_action = move_input
 	desired_velocity = move_input * SPEED
-	velocity = velocity.move_toward(desired_velocity, SPEED * 0.25 * delta)
+	velocity = velocity.move_toward(desired_velocity, SPEED * 0.25)
 	move_and_slide()
 
 func move_with_arrows(delta: float):
@@ -271,5 +271,5 @@ func move_with_arrows(delta: float):
 	if direction != Vector2.ZERO:
 		direction = direction.normalized()
 
-	velocity = direction * SPEED * delta
+	velocity = direction * SPEED
 	move_and_slide()
