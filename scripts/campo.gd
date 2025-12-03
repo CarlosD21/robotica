@@ -2,27 +2,17 @@ extends Node2D
 class_name campo
 
 @onready var objetivo: objetivo = $Objetivo
-var episode_time := 0.0
-const EPISODE_TIME_LIMIT := 12.0
+@onready var base_1: base = $base1
+@onready var base_2: base = $base2
+
 
 func _process(delta):
-	episode_time += delta
-
-	# Timeout
-	#if episode_time >= EPISODE_TIME_LIMIT:
-		
-
-	# Si alguno gana
-	#for child in get_children():
-		#if child is robot:
-			#if child.win:
-				#call_deferred("_reset_all")
-
+	pass
 func _reset_all():
-	#episode_time = 0.0
 	objetivo.reset()
 	for child in get_children():
 		if child is robot:
+			#swap_robot_bases(child)
 			child.reset()
 
 func _on_timer_timeout() -> void:
@@ -30,7 +20,21 @@ func _on_timer_timeout() -> void:
 			if child is robot:
 				child.end_episode_timeout()
 	call_deferred("_reset_all")
-
+				
 
 func _on_robot_sig_win() -> void:
 	call_deferred("_reset_all")
+func _on_robot_sig_end_epi() -> void:
+	_on_timer_timeout()
+	
+func swap_robot_bases(robot):
+	if robot.myBaseSide == 0.0:
+		robot.originalPosition = base_2.position
+		robot.myBaseSide = 1.0
+		robot.myBase = base_2
+	else:
+		robot.originalPosition = base_1.position
+		robot.myBaseSide = 0.0
+		robot.myBase = base_1
+
+		#print("Intercambiadas bases entre: ", r1.name, " ↔ ", r2.name)

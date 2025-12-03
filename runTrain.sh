@@ -23,10 +23,10 @@ echo "-> Guardando nuevo modelo como: $NEXT_MODEL"
 CMD=(python3 "$SCRIPT" \
      --env_path "$ENV_PATH" \
      --timesteps "$TIMESTEPS" \
-     #--save_model_path "$SAVE_PATH" \
-    # --n_parallel "$N_PARALLEL"\
-    --viz
-    --inference
+     --save_model_path "$SAVE_PATH" \
+     --n_parallel "$N_PARALLEL"\
+    #--viz
+    #--inference
      )
 
 # Agregar resume_model_path si existe

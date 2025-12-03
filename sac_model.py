@@ -28,7 +28,7 @@ parser.add_argument("--timesteps", default=1_000_000, type=int)
 parser.add_argument("--inference", default=False, action="store_true")
 parser.add_argument("--linear_lr_schedule", default=False, action="store_true")
 parser.add_argument("--viz", action="store_true", default=False)
-parser.add_argument("--speedup", default=1, type=int)
+parser.add_argument("--speedup", default=16, type=int)
 parser.add_argument("--n_parallel", default=1, type=int)
 args, extras = parser.parse_known_args()
 

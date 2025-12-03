@@ -99,7 +99,7 @@ parser.add_argument(
     "training will run without rendering the simulation. This setting does not apply to in-editor training.",
     default=False,
 )
-parser.add_argument("--speedup", default=1, type=int, help="Whether to speed up the physics in the env")
+parser.add_argument("--speedup", default=4, type=int, help="Whether to speed up the physics in the env")
 parser.add_argument(
     "--n_parallel",
     default=1,

@@ -6,11 +6,10 @@
 [node name="main" type="Node2D"]
 
 [node name="campo" parent="." instance=ExtResource("1_0kxa1")]
-position = Vector2(2, 2)
 
 [node name="Sync" type="Node" parent="."]
 script = ExtResource("2_0kxa1")
-action_repeat = 6
-speed_up = 6.0
+action_repeat = 4
+speed_up = 6.7
 onnx_model_path = "res://trainModel.onnx"
 metadata/_custom_type_script = "uid://yk6v6w7crcmg"

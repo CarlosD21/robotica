@@ -8,7 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://fuuva4fc5w3h" path="res://assets/PNG/Retina/effect_blastLarge.png" id="5_sqlnj"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_uluw2"]
-radius = 49.063736
+radius = 48.04165
 
 [sub_resource type="LabelSettings" id="LabelSettings_73r1n"]
 
@@ -29,6 +29,8 @@ position = Vector2(0, 20)
 rotation = -1.5707964
 script = ExtResource("2_ggh3a")
 collide_with_areas = true
+n_rays = 12.0
+ray_length = 250
 metadata/_custom_type_script = "uid://dt4novsspr84h"
 
 [node name="AIController2D" type="Node2D" parent="."]
