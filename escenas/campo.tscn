@@ -78,9 +78,14 @@ position = Vector2(570, 321)
 [node name="robot" parent="." instance=ExtResource("2_n5ddh")]
 position = Vector2(52, 307)
 
+[node name="Timer" type="Timer" parent="."]
+wait_time = 5.0
+autostart = true
+
 [connection signal="body_entered" from="base1" to="base1" method="_on_body_entered"]
 [connection signal="body_exited" from="base1" to="base1" method="_on_body_exited"]
 [connection signal="body_entered" from="base2" to="base2" method="_on_body_entered"]
 [connection signal="body_exited" from="base2" to="base2" method="_on_body_exited"]
 [connection signal="sig_end_epi" from="robot" to="." method="_on_robot_sig_end_epi"]
 [connection signal="sig_win" from="robot" to="." method="_on_robot_sig_win"]
+[connection signal="timeout" from="Timer" to="robot" method="_on_timer_timeout"]
