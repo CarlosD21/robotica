@@ -3,11 +3,12 @@ class_name robot
 
 @onready var ai_controller_2d: Node2D = $AIController2D
 @onready var objective: objetivo = $"../Objetivo"
-@onready var raycast_sensor_2d = $RaycastSensor2D
 @onready var sprite: Sprite2D = $CharacterRobotIdle
 @onready var reward_count: Label = $RewardCount
 @onready var ball: Sprite2D = $ball
 @onready var collision_shape_2d: CollisionShape2D = $CollisionShape2D
+@onready var vision: Node2D = $Vision
+@onready var proximity: RaycastSensor2D = $proximity
 var radius = 0 
 var base_half_width = 0
 signal sig_win
@@ -53,11 +54,20 @@ const REWARD_OBJETIVE := 10
 const PENALTY_LOSE:= -10
 const PENALTY_PROGRESS := -0.2
 const PENALTY_TIMEOUT := -2.5
+#Punto de colision
+var colision_point = 0.0
+#IDs
+const OBJECTIVE:= 1
+const MYBASE:= 2
+const RIVAL:= 3
+const MATE:= 4
 func _ready():
 	originalPosition = collision_shape_2d.global_position
 	if collision_shape_2d.shape is CircleShape2D:
 		radius = collision_shape_2d.shape.radius * collision_shape_2d.global_scale.x
+	colision_point = 100*(proximity.ray_length - radius)/proximity.ray_length
 	dist_obj = max(originalPosition.distance_to(objective.position) - radius, 0.0)
+	
 	_update_observations() 
 	
 func _physics_process(delta):
@@ -90,38 +100,62 @@ func set_dist_base():
 func _update_observations():
 	observations = []
 	rival_contact = false
-	var  near_distance_rival = last_distance_rival
-	distance_objetive = 1.0 - clamp((collision_shape_2d.global_position.distance_to(objective.position) - radius) / dist_obj, 0.0, 1.0)
-	if objectiveCatched:
-		distance_base = 1.0 - clamp((abs(collision_shape_2d.global_position.x - myBase.position.x) - (radius + base_half_width)) / dist_base, 0.0, 1.0)
-	else: 
-		distance_base = 0.0
-	observations.append(distance_objetive)
-	observations.append(distance_base)
 	observations.append(myBaseSide)
 	observations.append(float(objectiveCatched))
 	observations.append(float(objective.catched))
 	# -----------------------------
 	#  RAYCASTS
 	# -----------------------------
-	for ray in raycast_sensor_2d.rays:
+	for ray in vision.get_children():
 		var distance := 0.0
-		var collide_with := 0.0
+		var id:=0
+		if ray is RaycastSensor2D:
+			# Rival detectado
+			if not objectiveCatched and not objective.catched:
+				distance = get_max_distance_with(ray,func(a): return a is objetivo)
+				distance_objetive = distance if distance > distance_objetive else distance_objetive
+				id = OBJECTIVE
+			elif objectiveCatched:
+				distance = get_max_distance_with(ray,func(a): return a == myBase)
+				if distance == 0.0:
+					distance = get_max_distance_with(ray,func(a): return (a is robot and a.myBase == myBase))
+					id = MATE
+				else:
+					distance_base = distance if distance > distance_base else distance_base
+					id = MYBASE
+			else:
+				distance = get_max_distance_with(ray,func(a): return a is robot and a.myBase != myBase)
+				id = RIVAL
+		observations.append(distance)
+		observations.append(float(id))
+	#Proximidad
+	for ray in proximity.rays:
+		var distance := 0.0
 		ray.enabled = true
 		ray.force_raycast_update()
 		var collider = ray.get_collider()
-		distance = raycast_sensor_2d._get_raycast_distance(ray)
+		distance = proximity._get_raycast_distance(ray)
 		# Rival detectado
 		if collider is robot:
-			collide_with = 1.0
-			if distance > near_distance_rival:
-				near_distance_rival = distance
-			if distance > 0.80 and objective.catched:
+			distance_rival = distance if distance > distance_rival else distance_rival
+			if distance > colision_point and objective.catched:
 				rival_contact = true
 		ray.enabled = false					
 		observations.append(distance)
-		observations.append(collide_with)
-	distance_rival = near_distance_rival
+	
+func get_max_distance_with(raycast: RaycastSensor2D,callback: Callable) -> float:
+	var  near_distance = 0.0
+	for ray in raycast.rays:
+		var distance := 0.0
+		ray.enabled = true
+		ray.force_raycast_update()
+		var collider = ray.get_collider()
+		distance = proximity._get_raycast_distance(ray)
+		if callback.call(collider):
+			if distance > near_distance:
+				near_distance = distance
+		ray.enabled = false					
+	return near_distance
 
 
 # ---------------------------------------------------

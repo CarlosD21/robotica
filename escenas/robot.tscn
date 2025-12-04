@@ -24,15 +24,6 @@ texture = ExtResource("1_qnvs6")
 position = Vector2(0, 20)
 shape = SubResource("CircleShape2D_uluw2")
 
-[node name="RaycastSensor2D" type="Node2D" parent="."]
-position = Vector2(0, 20)
-rotation = -1.5707964
-script = ExtResource("2_ggh3a")
-collide_with_areas = true
-n_rays = 12.0
-ray_length = 250
-metadata/_custom_type_script = "uid://dt4novsspr84h"
-
 [node name="AIController2D" type="Node2D" parent="."]
 position = Vector2(0, 20)
 script = ExtResource("4_uluw2")
@@ -57,3 +48,94 @@ visible = false
 position = Vector2(-25, 51)
 scale = Vector2(0.8046875, 0.6957363)
 texture = ExtResource("5_73r1n")
+
+[node name="proximity" type="Node2D" parent="."]
+position = Vector2(0, 20)
+rotation = -1.5707964
+script = ExtResource("2_ggh3a")
+collide_with_areas = true
+n_rays = 12.0
+ray_length = 120
+metadata/_custom_type_script = "uid://dt4novsspr84h"
+
+[node name="Vision" type="Node2D" parent="."]
+
+[node name="vision0" type="Node2D" parent="Vision"]
+position = Vector2(0, 20)
+script = ExtResource("2_ggh3a")
+collide_with_areas = true
+n_rays = 20.0
+ray_length = 600
+cone_width = 45.0
+metadata/_custom_type_script = "uid://dt4novsspr84h"
+
+[node name="vision45" type="Node2D" parent="Vision"]
+position = Vector2(0, 20)
+rotation = 0.7853982
+scale = Vector2(0.99999994, 0.99999994)
+script = ExtResource("2_ggh3a")
+collide_with_areas = true
+n_rays = 20.0
+ray_length = 600
+cone_width = 45.0
+metadata/_custom_type_script = "uid://dt4novsspr84h"
+
+[node name="vision90" type="Node2D" parent="Vision"]
+position = Vector2(0, 20)
+rotation = 1.5707964
+script = ExtResource("2_ggh3a")
+collide_with_areas = true
+n_rays = 20.0
+ray_length = 600
+cone_width = 45.0
+metadata/_custom_type_script = "uid://dt4novsspr84h"
+
+[node name="vision135" type="Node2D" parent="Vision"]
+position = Vector2(0, 20)
+rotation = 2.3561945
+script = ExtResource("2_ggh3a")
+collide_with_areas = true
+n_rays = 20.0
+ray_length = 600
+cone_width = 45.0
+metadata/_custom_type_script = "uid://dt4novsspr84h"
+
+[node name="vision180" type="Node2D" parent="Vision"]
+position = Vector2(0, 20)
+rotation = 3.1415927
+script = ExtResource("2_ggh3a")
+collide_with_areas = true
+n_rays = 20.0
+ray_length = 600
+cone_width = 45.0
+metadata/_custom_type_script = "uid://dt4novsspr84h"
+
+[node name="vision225" type="Node2D" parent="Vision"]
+position = Vector2(0, 20)
+rotation = 3.9269907
+script = ExtResource("2_ggh3a")
+collide_with_areas = true
+n_rays = 20.0
+ray_length = 600
+cone_width = 45.0
+metadata/_custom_type_script = "uid://dt4novsspr84h"
+
+[node name="vision270" type="Node2D" parent="Vision"]
+position = Vector2(0, 20)
+rotation = 4.712389
+script = ExtResource("2_ggh3a")
+collide_with_areas = true
+n_rays = 20.0
+ray_length = 600
+cone_width = 45.0
+metadata/_custom_type_script = "uid://dt4novsspr84h"
+
+[node name="vision315" type="Node2D" parent="Vision"]
+position = Vector2(0, 20)
+rotation = 5.497787
+script = ExtResource("2_ggh3a")
+collide_with_areas = true
+n_rays = 20.0
+ray_length = 600
+cone_width = 45.0
+metadata/_custom_type_script = "uid://dt4novsspr84h"

@@ -17,8 +17,8 @@ if can_import("ray"):
 # ---------------------- Argumentos ----------------------
 parser = argparse.ArgumentParser(allow_abbrev=False)
 parser.add_argument("--env_path", default=None, type=str)
-parser.add_argument("--experiment_dir", default="logs/sac", type=str)
-parser.add_argument("--experiment_name", default="experiment/experiment", type=str)
+parser.add_argument("--experiment_dir", default="logs/sac/experiment", type=str)
+parser.add_argument("--experiment_name", default="experiment", type=str)
 parser.add_argument("--seed", type=int, default=0)
 parser.add_argument("--resume_model_path", default=None, type=str)
 parser.add_argument("--save_model_path", default=None, type=str)

@@ -26,14 +26,14 @@ parser.add_argument(
 )
 parser.add_argument(
     "--experiment_dir",
-    default="logs/ppo",
+    default="logs/ppo/experiment",
     type=str,
     help="The name of the experiment directory, in which the tensorboard logs and checkpoints (if enabled) are "
     "getting stored.",
 )
 parser.add_argument(
     "--experiment_name",
-    default="experiment/experiment",
+    default="experiment",
     type=str,
     help="The name of the experiment, which will be displayed in tensorboard and "
     "for checkpoint directory and name (if enabled).",

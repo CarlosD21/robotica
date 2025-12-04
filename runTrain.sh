@@ -16,7 +16,7 @@ fi
 NEXT_NUM=$((LAST_NUM + 1))
 NEXT_MODEL=$(printf "run_%03d.zip" "$NEXT_NUM")
 SAVE_PATH="$LOG_DIR/$NEXT_MODEL"
-
+NEXT_EXPERIMENT=$(printf "experiment_%03d" "$NEXT_NUM")
 echo "-> Guardando nuevo modelo como: $NEXT_MODEL"
 
 # === CONSTRUIR COMANDO ===
@@ -25,6 +25,7 @@ CMD=(python3 "$SCRIPT" \
      --timesteps "$TIMESTEPS" \
      --save_model_path "$SAVE_PATH" \
      --n_parallel "$N_PARALLEL"\
+     --experiment_name "$NEXT_EXPERIMENT"\
     #--viz
     #--inference
      )
