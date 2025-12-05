@@ -1,17 +1,19 @@
 extends CharacterBody2D
 class_name robot
 
-@onready var ai_controller_2d: Node2D = $AIController2D
-@onready var objective: objetivo = $"../Objetivo"
-@onready var sprite: Sprite2D = $CharacterRobotIdle
-@onready var reward_count: Label = $RewardCount
-@onready var ball: Sprite2D = $ball
+var ai_controller_2d: Node2D
+var sprite: Sprite2D
+var reward_count: Label 
+var vision: Node2D
+var proximity: RaycastSensor2D
+
 @onready var collision_shape_2d: CollisionShape2D = $CollisionShape2D
-@onready var vision: Node2D = $Vision
-@onready var proximity: RaycastSensor2D = $proximity
+@onready var ball: Sprite2D = $ball
+@onready var objective: objetivo = $"../Objetivo"
+@export var base: Node2D
+
 var radius = 0 
-var base_half_width = 0
-signal sig_win
+signal sig_game_over
 signal sig_end_epi
 # Movimiento
 const SPEED = 450.0
@@ -20,14 +22,13 @@ var desired_velocity := Vector2.ZERO
 var last_action := Vector2.ZERO
 # Estado
 var win := false
+var lose := false
 var objectiveCatched := false
 var rival_contact := false
 
 var myBase = null
 var originalPosition = null
 
-var dist_obj = 0.0
-var dist_base = 0.0
 var myBaseSide = -1.0
 var total_reward := 0.0
 var observations := []
@@ -56,28 +57,34 @@ const PENALTY_LOSE:= -10
 const PENALTY_PROGRESS := -0.2
 const PENALTY_TIMEOUT := -2.5
 #Punto de colision
-var colision_point = 0.0
+var colision_point = 0.70
 #IDs
 const OBJECTIVE:= 1
 const MYBASE:= 2
 const RIVAL:= 3
 const MATE:= 4
 func _ready():
+	ai_controller_2d = $AIController2D
+	sprite = $CharacterRobotIdle
+	reward_count = $RewardCount
+	collision_shape_2d = $CollisionShape2D
+	vision = $Vision
+	proximity = $proximity
+	myBase = base
+	if myBase.get_node("CollisionShape2D").shape is RectangleShape2D:
+		if position.x > myBase.position.x:
+			myBaseSide = 0.0
+		else:
+			myBaseSide = 1.0
 	originalPosition = collision_shape_2d.global_position
-	if collision_shape_2d.shape is CircleShape2D:
-		radius = collision_shape_2d.shape.radius * collision_shape_2d.global_scale.x
-	colision_point = 100*(proximity.ray_length - radius)/proximity.ray_length
-	dist_obj = max(originalPosition.distance_to(objective.position) - radius, 0.0)
-	
-	_update_observations() 
-	
+		
 func _physics_process(delta):
 	
 	if timestep_count > MAX_TIMESTEPS:
 		emit_signal("sig_end_epi")
 	#Movimiento
 	moveAIController(delta)
-	move_with_arrows(delta)	
+	#move_with_arrows(delta)	
 	if ai_controller_2d.new_action:
 		timestep_count += 1
 		steps_without_progress += 1
@@ -86,8 +93,8 @@ func _physics_process(delta):
 	set_reward()
 	_update_observations()
 	update_label()
-	if win:
-		win_game()
+	if win or lose:
+		game_over()
 	
 # ---------------------------------------------------
 # OBSERVACIONES
@@ -96,53 +103,58 @@ func _get_observations() -> Array:
 	if observations.size() == 0:
 		_update_observations() 
 	return observations
-func set_dist_base():
-	dist_base = max(abs(myBase.position.x - objective.position.x) - (radius + base_half_width),0.0)
+
 func _update_observations():
 	observations = []
 	rival_contact = false
+	distance_rival = 0.0
 	observations.append(myBaseSide)
 	observations.append(float(objectiveCatched))
 	observations.append(float(objective.catched))
 	# -----------------------------
 	#  RAYCASTS
 	# -----------------------------
-	var distance := 0.0
 	#Vision
+	var distance := 0.0
 	for ray in vision.get_children():
-		var id:=0
+		var id = 0
 		var distance_collide := 0.0
 		if ray is RaycastSensor2D:
 			# Rival detectado
-			if not objectiveCatched and not objective.catched:
+			if not objective.catched:
 				distance_collide = get_max_distance_with(ray,
 					func(a): return a is objetivo)
-				distance = distance_collide if distance_collide > distance else distance
-				distance_objetive = distance 
-				id = OBJECTIVE
+				if distance_collide != 0.0:
+					distance = distance_collide if distance_collide > distance else distance
+					distance_objetive = distance if distance != 0.0 else distance_objetive
+					id = OBJECTIVE
 			elif objectiveCatched:
 				distance_collide = get_max_distance_with(ray,func(a): return a == myBase)
 				if distance_collide == 0.0:
 					distance_collide = get_max_distance_with(ray,
 						func(a): return (a is robot and a.myBase == myBase))
-					distance = distance_collide if distance_collide > distance else distance
-					distance_mate = distance
-					id = MATE
+					if distance_collide != 0.0:
+						distance = distance_collide if distance_collide > distance else distance
+						distance_mate = distance  if distance != 0.0 else distance_mate
+						id = MATE
 				else:
 					distance = distance_collide if distance_collide > distance else distance
-					distance_base = distance
+					distance_base = distance if distance != 0.0 else distance_base
 					id = MYBASE
-			else:
-				distance = get_max_distance_with(ray,
-					func(a): return a is robot and a.myBase != myBase and a.objectiveCatched)
-				id = RIVAL
-		observations.append(float(id))
-		observations.append(distance)
+			elif objective.catched and not objectiveCatched:
+				distance_collide = get_max_distance_with(ray,
+				func(a): return a is robot and a.myBase != myBase and a.objectiveCatched)
+				if distance_collide != 0.0:
+					distance = distance_collide if distance_collide > distance else distance
+					distance_rival = distance if distance != 0.0 else distance_rival
+					id = RIVAL
+			observations.append(float(id))
+			observations.append(distance_collide)
 		
-	distance = 0.0
-	var max_dist = 0.0
 	#Proximidad
+	var max_dist = 0.0
 	for ray in proximity.rays:
+		distance = 0.0
 		ray.enabled = true
 		ray.force_raycast_update()
 		var collider = ray.get_collider()
@@ -155,9 +167,11 @@ func _update_observations():
 					rival_contact = true
 			elif distance > colision_point and objectiveCatched:
 				pass_objective(collider)	
-		ray.enabled = false					
+		ray.enabled = false
 		observations.append(distance)
-	distance_rival = max_dist
+	distance_rival = max_dist if distance_rival == 0.0 else distance_rival
+	
+	
 # ---------------------------------------------------
 # RECOMPENSAS
 # ---------------------------------------------------
@@ -205,11 +219,11 @@ func set_reward():
 	if abs(delta_rival) > threshold:
 		delta_rival = 1.0 if delta_rival > 0.0 else -1.0
 		# Yo tengo el objetivo: evitar
-		if objectiveCatched or distance_rival >= 0.30:
-			var plus = REWARD_DISTANCE  * (1 - distance_rival)
+		if objectiveCatched or (distance_rival > 0.3 and not objective.catched):
+			var plus = REWARD_DISTANCE  * (1 - distance_rival) * 1.2
 			reward_local -= delta_rival * (REWARD_DISTANCE + plus)
 		# El rival tiene el objetivo: perseguir
-		elif objective.catched:
+		elif objective.catched and not objectiveCatched:
 			var plus = REWARD_DISTANCE  * (distance_rival)
 			reward_local += delta_rival * (REWARD_DISTANCE + plus)
 		last_distance_rival = distance_rival
@@ -230,6 +244,7 @@ func set_reward():
 	if rival_contact:
 		if objectiveCatched:
 			reward_local += PENALTY_LOSE
+			lose = true
 		elif objective.catched:
 			reward_local += REWARD_WIN
 			win = true
@@ -237,7 +252,8 @@ func set_reward():
 	add_reward(reward_local)
 
 func add_reward(value):
-	ai_controller_2d.reward += value
+	if ai_controller_2d!=null:
+		ai_controller_2d.reward += value
 	total_reward += value
 
 func have_objetive():
@@ -247,11 +263,10 @@ func have_objetive():
 
 func end_episode_timeout():
 	add_reward(PENALTY_TIMEOUT)
-	ai_controller_2d.done = true
 	
-func win_game():
-	emit_signal("sig_win")
-	ai_controller_2d.done = true
+func game_over():
+	emit_signal("sig_game_over")
+	
 
 # ---------------------------------------------------
 # FUNCIONES AUXILIARES
@@ -273,7 +288,7 @@ func get_max_distance_with(raycast: RaycastSensor2D,callback: Callable) -> float
 		ray.enabled = true
 		ray.force_raycast_update()
 		var collider = ray.get_collider()
-		distance = proximity._get_raycast_distance(ray)
+		distance = raycast._get_raycast_distance(ray)
 		if callback.call(collider):
 			if distance > near_distance:
 				near_distance = distance
@@ -283,8 +298,12 @@ func get_max_distance_with(raycast: RaycastSensor2D,callback: Callable) -> float
 # RESET
 # ---------------------------------------------------
 func reset():
+	if ai_controller_2d!=null:
+		ai_controller_2d.done = true
 	objectiveCatched = false
 	win = false
+	lose = false
+	rival_contact = false
 	total_reward = 0.0
 	timestep_count = 0
 	steps_without_progress = 0
@@ -302,9 +321,6 @@ func reset():
 	distance_mate = 0.0
 	last_distance_mate = 0.0
 	
-	rival_contact = false
-	dist_obj = max(originalPosition.distance_to(objective.position) - radius, 0.0)
-	dist_base = 0.0
 # ---------------------------------------------------
 # MOVIMIENTO
 # ---------------------------------------------------
@@ -345,5 +361,8 @@ func move_with_arrows(delta: float):
 
 func _on_timer_timeout() -> void:
 	print()
+	print(name)
 	print("DISTANCIA A OBJETIVO ",distance_objetive)
 	print("DISTANCIA A BASE ",distance_base)
+	print("DISTANCIA A RIVAL ", distance_rival)
+	print(observations)

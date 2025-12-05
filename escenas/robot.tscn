@@ -55,7 +55,6 @@ rotation = 0.3926991
 script = ExtResource("2_ggh3a")
 collide_with_areas = true
 n_rays = 8.0
-ray_length = 150
 metadata/_custom_type_script = "uid://dt4novsspr84h"
 
 [node name="Vision" type="Node2D" parent="."]

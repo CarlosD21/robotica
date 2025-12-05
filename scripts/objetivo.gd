@@ -31,5 +31,4 @@ func catch():
 func _on_body_entered(body):
 	if body is robot and not catched and not body.objectiveCatched:
 		body.have_objetive()
-		body.set_dist_base()
 		catch()

@@ -21,11 +21,6 @@ func _on_timer_timeout() -> void:
 				child.end_episode_timeout()
 	call_deferred("_reset_all")
 				
-
-func _on_robot_sig_win() -> void:
-	call_deferred("_reset_all")
-func _on_robot_sig_end_epi() -> void:
-	_on_timer_timeout()
 	
 func swap_robot_bases(robot):
 	if robot.myBaseSide == 0.0:
@@ -38,3 +33,13 @@ func swap_robot_bases(robot):
 		robot.myBase = base_1
 
 		#print("Intercambiadas bases entre: ", r1.name, " ↔ ", r2.name)
+
+
+func _on_robot_sig_game_over() -> void:
+	call_deferred("_reset_all")
+func _on_robot_sig_end_epi() -> void:
+	_on_timer_timeout()
+
+
+func _on_dummy_sig_game_over() -> void:
+	call_deferred("_reset_all")

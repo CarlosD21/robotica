@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://uxr8p3y8ti6o"]
+[gd_scene load_steps=9 format=3 uid="uid://uxr8p3y8ti6o"]
 
 [ext_resource type="Script" uid="uid://besf60xs5half" path="res://scripts/base.gd" id="1_n2qr4"]
 [ext_resource type="Script" uid="uid://doo8r8tx4rx6a" path="res://scripts/campo.gd" id="1_ql25n"]
 [ext_resource type="PackedScene" uid="uid://80esrcttskp6" path="res://escenas/objetivo.tscn" id="1_r8fre"]
 [ext_resource type="PackedScene" uid="uid://cmvvtbopvhfhl" path="res://escenas/robot.tscn" id="2_n5ddh"]
+[ext_resource type="PackedScene" uid="uid://d1nev45ei7hn2" path="res://escenas/dummy.tscn" id="5_n2qr4"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_2nssx"]
 size = Vector2(104, 643.5)
@@ -75,17 +76,26 @@ shape = SubResource("RectangleShape2D_n5ddh")
 [node name="Objetivo" parent="." instance=ExtResource("1_r8fre")]
 position = Vector2(570, 321)
 
-[node name="robot" parent="." instance=ExtResource("2_n5ddh")]
-position = Vector2(52, 307)
+[node name="robot" parent="." node_paths=PackedStringArray("base") instance=ExtResource("2_n5ddh")]
+position = Vector2(60, 388)
+base = NodePath("../base1")
 
 [node name="Timer" type="Timer" parent="."]
-wait_time = 5.0
+wait_time = 10.0
 autostart = true
+
+[node name="Dummy" parent="." node_paths=PackedStringArray("rival_robot", "base") instance=ExtResource("5_n2qr4")]
+position = Vector2(1091, 323)
+behavior = 0
+speed = 250.0
+rival_robot = NodePath("../base1")
+pos_x = 700.0
+base = NodePath("../base2")
 
 [connection signal="body_entered" from="base1" to="base1" method="_on_body_entered"]
 [connection signal="body_exited" from="base1" to="base1" method="_on_body_exited"]
 [connection signal="body_entered" from="base2" to="base2" method="_on_body_entered"]
 [connection signal="body_exited" from="base2" to="base2" method="_on_body_exited"]
 [connection signal="sig_end_epi" from="robot" to="." method="_on_robot_sig_end_epi"]
-[connection signal="sig_win" from="robot" to="." method="_on_robot_sig_win"]
-[connection signal="timeout" from="Timer" to="robot" method="_on_timer_timeout"]
+[connection signal="sig_game_over" from="robot" to="." method="_on_robot_sig_game_over"]
+[connection signal="sig_game_over" from="Dummy" to="." method="_on_dummy_sig_game_over"]
