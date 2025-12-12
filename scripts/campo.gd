@@ -14,7 +14,6 @@ func _reset_all():
 		if child is robot:
 			#swap_robot_bases(child)
 			child.reset()
-
 func _on_timer_timeout() -> void:
 	for child in get_children():
 			if child is robot:

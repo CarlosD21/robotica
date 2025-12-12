@@ -6,11 +6,15 @@ var sprite: Sprite2D
 var reward_count: Label 
 var vision: Node2D
 var proximity: RaycastSensor2D
+var namelabel: Label
 
 @onready var collision_shape_2d: CollisionShape2D = $CollisionShape2D
 @onready var ball: Sprite2D = $ball
-@onready var objective: objetivo = $"../Objetivo"
-@export var base: Node2D
+
+@export  var objective: objetivo
+@export var myBase: base
+@export var base_red: base
+@export var base_blue: base
 
 var radius = 0 
 signal sig_game_over
@@ -26,7 +30,6 @@ var lose := false
 var objectiveCatched := false
 var rival_contact := false
 
-var myBase = null
 var originalPosition = null
 
 var myBaseSide = -1.0
@@ -57,12 +60,15 @@ const PENALTY_LOSE:= -10
 const PENALTY_PROGRESS := -0.2
 const PENALTY_TIMEOUT := -2.5
 #Punto de colision
-var colision_point = 0.70
+var colision_point = 0.65
 #IDs
 const OBJECTIVE:= 1
 const MYBASE:= 2
 const RIVAL:= 3
 const MATE:= 4
+const TEAM_1:= "equipo1"
+const TEAM_2:= "equipo2"
+var team = null
 func _ready():
 	ai_controller_2d = $AIController2D
 	sprite = $CharacterRobotIdle
@@ -70,12 +76,17 @@ func _ready():
 	collision_shape_2d = $CollisionShape2D
 	vision = $Vision
 	proximity = $proximity
-	myBase = base
-	if myBase.get_node("CollisionShape2D").shape is RectangleShape2D:
-		if position.x > myBase.position.x:
-			myBaseSide = 0.0
-		else:
-			myBaseSide = 1.0
+	namelabel = $name
+	namelabel.text = str(self.name)
+	if myBase == base_red:
+		myBaseSide = 0.0
+		team =TEAM_1
+		sprite.modulate = Color(1.0, 0.32, 0.32)
+	else:
+		myBaseSide = 1.0
+		team =TEAM_2
+		sprite.modulate = Color(0.0, 0.51, 1.0)
+	add_to_group(team)
 	originalPosition = collision_shape_2d.global_position
 		
 func _physics_process(delta):
@@ -84,7 +95,7 @@ func _physics_process(delta):
 		emit_signal("sig_end_epi")
 	#Movimiento
 	moveAIController(delta)
-	#move_with_arrows(delta)	
+	move_with_arrows(delta)	
 	if ai_controller_2d.new_action:
 		timestep_count += 1
 		steps_without_progress += 1
@@ -94,6 +105,9 @@ func _physics_process(delta):
 	_update_observations()
 	update_label()
 	if win or lose:
+		for r in get_tree().get_nodes_in_group(team):
+			if r != self :  
+				r.add_reward(REWARD_WIN if win else 0.0)
 		game_over()
 	
 # ---------------------------------------------------
@@ -163,7 +177,7 @@ func _update_observations():
 			distance = proximity._get_raycast_distance(ray)
 			if collider.myBase != myBase:
 				max_dist = distance if distance > max_dist else max_dist
-				if distance > colision_point and objective.catched:
+				if distance > colision_point and (collider.objectiveCatched or objectiveCatched) :
 					rival_contact = true
 			elif distance > colision_point and objectiveCatched:
 				pass_objective(collider)	

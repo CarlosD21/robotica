@@ -43,3 +43,9 @@ echo "${CMD[@]}"
 
 # Ejecutar el comando
 "${CMD[@]}"
+
+CMD2=(python3 plot_experiment.py \
+    --file "./logs/sac/experiment/experiment_"$NEXT_NUM"/events.out*" \
+    --out "./logs/sac/graficas/graficas_""$NEXT_NUM" \
+     )
+"${CMD2[@]}"

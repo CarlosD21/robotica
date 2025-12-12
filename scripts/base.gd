@@ -5,13 +5,15 @@ func _on_body_exited(body):
 	if body is robot:	
 		if body.myBase == null:
 			body.myBase = self
-		if body.position.x > position.x:
+			if body.position.x > position.x:
 				body.myBaseSide = 0.0
+				body.team = "equipo1"
 				body.sprite.modulate = Color(1.0, 0.32, 0.32)
-		else:
-			body.myBaseSide = 1.0
-			body.sprite.modulate = Color(0.0, 0.51, 1.0)
-		
+			else:
+				body.myBaseSide = 1.0
+				body.team = "equipo2"
+				body.sprite.modulate = Color(0.0, 0.51, 1.0)
+			body.add_to_group(body.team)
 func _on_body_entered(body):
 	if body is robot:
 		if body.objectiveCatched and body.myBase == self:

@@ -37,15 +37,15 @@ var random_offset := Vector2.ZERO
 func _ready():
 	originalPosition = collision_shape_2d.global_position
 	sprite = character_round_yellow
-	myBase = base
-	if myBase.get_node("CollisionShape2D").shape is RectangleShape2D:
-		if position.x > myBase.position.x:
-			myBaseSide = 0.0
-			#character_round_yellow.modulate = Color(1.0, 0.32, 0.32)
-		else:
-			myBaseSide = 1.0
-			#character_round_yellow.modulate = Color(0.0, 0.51, 1.0)
-	
+	if base == base_red:
+		myBaseSide = 0.0
+		team =TEAM_1
+		character_round_yellow.modulate = Color(1.0, 0.32, 0.32)
+	else:
+		myBaseSide = 1.0
+		character_round_yellow.modulate = Color(0.0, 0.51, 1.0)
+		team =TEAM_2
+	add_to_group(team)
 	random_offset = Vector2(
 		randf_range(-150, 150),
 		randf_range(-150, 150)
@@ -60,13 +60,6 @@ func _physics_process(delta):
 	if haveObjective:
 		have_objetive()
 		objective.catch()
-	if myBase.get_node("CollisionShape2D").shape is RectangleShape2D:
-		if position.x > myBase.position.x:
-			myBaseSide = 0.0
-			character_round_yellow.modulate = Color(1.0, 0.32, 0.32)
-		else:
-			myBaseSide = 1.0
-			character_round_yellow.modulate = Color(0.0, 0.51, 1.0)
 	match behavior:
 
 		BehaviorType.GO_OBJECTIVE_RETURN_BASE:
@@ -77,7 +70,7 @@ func _physics_process(delta):
 
 		BehaviorType.MOVE_UP_DOWN:
 			position.x = pos_x
-			run_up_down(delta)
+			run_up_down()
 
 
 # ---------------------------------------------------------
@@ -94,9 +87,19 @@ func run_go_objective_return_base(delta):
 	# Si el objetivo ya fue capturado → volver a base
 	if objectiveCatched:
 		target = myBase.position
-	
-	if objective.catched and not objectiveCatched:
-		target = rival_robot.position
+	elif objective.catched and not objectiveCatched:
+		var have_rival=false
+		for r in get_tree().get_nodes_in_group(TEAM_2 if team == TEAM_1 else TEAM_1):
+			if r.objectiveCatched:  
+				target = r.position
+				have_rival=true
+		if not have_rival:
+			for r in get_tree().get_nodes_in_group(team):
+				if r.objectiveCatched:
+					run_up_down()
+					return
+					
+				
 		
 	var dir := (target - position).normalized()
 	velocity = dir * speed
@@ -115,7 +118,7 @@ func run_chase_enemy(delta):
 		return
 
 	# Solo perseguir si el enemigo tiene el objetivo
-	if rival_robot.objetiveCatched:
+	if rival_robot.objectiveCatched:
 		# Movimiento no recto → se añade un offset que rota
 		var time_rot := Time.get_ticks_msec() / 1000.0
 		var target := rival_robot.position + random_offset.rotated(time_rot)
@@ -134,7 +137,7 @@ func run_chase_enemy(delta):
 # ---------------------------------------------------------
 # 3. MOVIMIENTO VERTICAL ARRIBA / ABAJO
 # ---------------------------------------------------------
-func run_up_down(delta):
+func run_up_down():
 	if position.y < min_y:
 		up_down_direction = 1
 	elif position.y > max_y:
